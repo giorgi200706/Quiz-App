@@ -6,8 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 
 const MainScreen = () => {
   const [allCategories, setAllCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
 
   const difficultyOptions = [
     { label: 'Easy', value: 'easy' },
@@ -32,7 +32,7 @@ const MainScreen = () => {
 
   const navigation = useNavigation();
   const onStartPressHandler = () => {
-    if(selectedCategory && selectedDifficulty){
+    if(selectedCategory !== null && selectedDifficulty !== null){
       navigation.navigate('Questions', {selectedCategory, selectedDifficulty});
     }else{
       Alert.alert('Please select a category and difficulty.');
