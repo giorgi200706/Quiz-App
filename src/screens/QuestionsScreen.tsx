@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
 import { fetchTriviaQuestions } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
 
+let onlyOneShuffle = 0;
+
 const QuestionScreen = ({ route }) => {
   const selectedCategory = route.params.selectedCategory;
   const selectedDifficulty = route.params.selectedDifficulty;
@@ -27,8 +29,8 @@ const QuestionScreen = ({ route }) => {
 
   const handleAnswerSelect = (selectedOption) => {
     setSelectedAnswer(selectedOption);
-    if(selectedOption == currentQuestion.correct_answer){
-      setScore(score + 1)
+    if(selectedOption === currentQuestion.correct_answer){
+      setScore(score + 1);
     }
     setTimeout(() => {
       if (currentQuestionIndex !== fetchedQuestions.length - 1) {
@@ -38,21 +40,24 @@ const QuestionScreen = ({ route }) => {
     }, 1000);
   };
 
-  if (fetchedQuestions.length === 0) {
-    return <Text>Loading...</Text>;
-  }
-
   const shuffleArray = (array) => {
+    if(onlyOneShuffle>0){
+      return array;
+    }
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
+    onlyOneShuffle++;
     return array;
   };
 
+  if (fetchedQuestions.length === 0) {
+    return <Text>Loading...</Text>;
+  }
+
   const currentQuestion = fetchedQuestions[currentQuestionIndex];
   const currentAnswers = shuffleArray([...currentQuestion.incorrect_answers, currentQuestion.correct_answer]);
-  console.log(currentQuestion.correct_answer);
 
   const navigation = useNavigation();
   const onHomePressHandler = () => {
@@ -71,7 +76,7 @@ const QuestionScreen = ({ route }) => {
               key={index}
               style={[
                 styles.answerContainer,
-                selectedAnswer === answer && styles.selectedAnswer, // Style for selected answer
+                selectedAnswer === answer && (answer === currentQuestion.correct_answer ? styles.correctAnswer : styles.incorrectAnswer), // Style for selected answer
               ]}
               onPress={() => handleAnswerSelect(answer)}
               disabled={selectedAnswer !== null} // Disable selecting a new answer until next question
@@ -105,11 +110,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
-  selectedAnswer: {
-    backgroundColor: 'lightblue', // Example background color for selected answer
+  correctAnswer: {
+    backgroundColor: 'lightgreen', // Background color for correct answer
+  },
+  incorrectAnswer: {
+    backgroundColor: 'lightcoral', // Background color for incorrect answer
+  },
+  scoreText: {
+    fontSize: 16,
+    marginBottom: 10,
   },
 });
 
 export default QuestionScreen;
-
-
