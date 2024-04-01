@@ -1,11 +1,115 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { fetchTriviaQuestions } from '../api/api';
+import { useNavigation } from '@react-navigation/native';
 
-const QuestionScreen = () => {
+const QuestionScreen = ({ route }) => {
+  const selectedCategory = route.params.selectedCategory;
+  const selectedDifficulty = route.params.selectedDifficulty;
+  const [fetchedQuestions, setFetchedQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    handleStart();
+  }, []);
+
+  const handleStart = async () => {
+    try {
+      const amount = 10;
+      const questions = await fetchTriviaQuestions(selectedCategory, selectedDifficulty, amount);
+      setFetchedQuestions(questions);
+    } catch (error) {
+      console.error('Error fetching questions:', error.message);
+    }
+  };
+
+  const handleAnswerSelect = (selectedOption) => {
+    setSelectedAnswer(selectedOption);
+    if(selectedOption == currentQuestion.correct_answer){
+      setScore(score + 1)
+    }
+    setTimeout(() => {
+      if (currentQuestionIndex !== fetchedQuestions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setSelectedAnswer(null);
+      }
+    }, 1000);
+  };
+
+  if (fetchedQuestions.length === 0) {
+    return <Text>Loading...</Text>;
+  }
+
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  const currentQuestion = fetchedQuestions[currentQuestionIndex];
+  const currentAnswers = shuffleArray([...currentQuestion.incorrect_answers, currentQuestion.correct_answer]);
+  console.log(currentQuestion.correct_answer);
+
+  const navigation = useNavigation();
+  const onHomePressHandler = () => {
+    navigation.navigate('Main');
+  }
 
   return (
-    <View><Text>test</Text></View>
+    <View style={styles.container}>
+      <Text style={styles.scoreText}>Score: {score}/10</Text>
+      {currentQuestionIndex < 9 && (
+        <>
+          <Text style={styles.scoreText}>Question N: {currentQuestionIndex + 1}</Text>
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+          {currentAnswers.map((answer, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.answerContainer,
+                selectedAnswer === answer && styles.selectedAnswer, // Style for selected answer
+              ]}
+              onPress={() => handleAnswerSelect(answer)}
+              disabled={selectedAnswer !== null} // Disable selecting a new answer until next question
+            >
+              <Text>{answer}</Text>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
+      <Button title='Back To Home' onPress={onHomePressHandler}/>
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  questionText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  answerContainer: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  selectedAnswer: {
+    backgroundColor: 'lightblue', // Example background color for selected answer
+  },
+});
+
 export default QuestionScreen;
+
+

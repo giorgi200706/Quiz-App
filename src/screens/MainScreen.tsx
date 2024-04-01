@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
-import { fetchTriviaQuestions, fetchTriviaCategories } from '../api/api';
+import { fetchTriviaCategories } from '../api/api';
+import { useNavigation } from '@react-navigation/native';
 
 const MainScreen = () => {
   const [allCategories, setAllCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState(null);
-  const [questions, setQuestions] = useState([]);
 
   const difficultyOptions = [
     { label: 'Easy', value: 'easy' },
@@ -30,17 +30,12 @@ const MainScreen = () => {
     fetchCategories();
   }, []);
 
-  const handleStart = async () => {
-    try {
-      const amount = 10;
-      const fetchedQuestions = await fetchTriviaQuestions(selectedCategory, selectedDifficulty, amount);
-      console.log('Fetched Questions:', fetchedQuestions);
-      setQuestions(fetchedQuestions);
-    } catch (error) {
-      if(error instanceof Error){
-        console.error('Error fetching categories:', error.message);
-        throw error;
-      }
+  const navigation = useNavigation();
+  const onStartPressHandler = () => {
+    if(selectedCategory && selectedDifficulty){
+      navigation.navigate('Questions', {selectedCategory, selectedDifficulty});
+    }else{
+      Alert.alert('Please select a category and difficulty.');
     }
   };
 
@@ -73,14 +68,7 @@ const MainScreen = () => {
         style={pickerSelectStyles}
       />
 
-      <Button title="Start" onPress={handleStart} />
-
-      {/* <Text style={styles.questionText}>Fetched Questions:</Text>
-      {questions.map((question, index) => (
-        <View key={index} style={styles.questionContainer}>
-          <Text>{index + 1}. {question.question}</Text>
-        </View>
-      ))} */}
+      <Button title="Start" onPress={onStartPressHandler} />
     </View>
   );
 };
