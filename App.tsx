@@ -14,10 +14,10 @@ import {MainScreen, QuestionsScreen} from './src/screens';
 const Stack = createStackNavigator();
 
 const App = () => {
-
+  // screenOptions={{headerShown: false}}
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator >
         <Stack.Screen name="Main" component={MainScreen} />
         <Stack.Screen name="Questions" component={QuestionsScreen} />
       </Stack.Navigator>
