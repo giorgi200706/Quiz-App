@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
-import { MainButton } from '.';
+import MainButton from './MainButton';
+import { QuestionLayoutProps } from './types';
 
-const QuestionsLayout = ({score, currentQuestionIndex, currentQuestion, currentAnswers, selectedAnswer, handleAnswerSelect, onHomePressHandler, onRestartPressHandler }: any) => {
-  
+const QuestionsLayout = ({score, currentQuestionIndex, currentQuestion, currentAnswers, selectedAnswer, handleAnswerSelect, onHomePressHandler, onRestartPressHandler }: QuestionLayoutProps) => { 
   return (
     <View style={styles.bigContainer}>
       <View style={styles.container}>
-        <Text style={styles.scoreText}>Score: {score}/10</Text>
-        <View style={styles.miniContainer}>
-          {currentQuestionIndex < 9 && (
+      <Text style={styles.scoreText}>{currentQuestionIndex < 9 && `Score: ${score}/10`}</Text>
+        <View>
+          {currentQuestionIndex < 9 ? (
             <>
               <Text style={styles.QuestionNText}>Question N:{currentQuestionIndex + 1}</Text>
               <Text style={styles.questionText}>{currentQuestion.question}</Text>
@@ -27,7 +27,7 @@ const QuestionsLayout = ({score, currentQuestionIndex, currentQuestion, currentA
                 </TouchableOpacity>
               ))}
             </>
-          )}
+          ): <Text style={[styles.scoreText, {fontSize: 32}]}>Score: {score}/10</Text>}
         </View>
         <View style={styles.buttonContainer}>
           <MainButton title='Back To Home' onPress={onHomePressHandler}/>

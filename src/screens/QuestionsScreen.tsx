@@ -4,11 +4,14 @@ import { fetchTriviaQuestions } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
 import { QuestionsLayout } from '../components';
 
+interface Props {
+  selectedCategory: number;
+  selectedDifficulty: string;
+}
+
 let onlyOneShuffle: string[] = [];
 
-const QuestionsScreen = ({ route }: any) => {
-  const selectedCategory = route.params.selectedCategory;
-  const selectedDifficulty = route.params.selectedDifficulty;
+const QuestionsScreen = ({ selectedCategory, selectedDifficulty }: Props) => {
   const [fetchedQuestions, setFetchedQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string  | null>(null);
@@ -63,7 +66,7 @@ const QuestionsScreen = ({ route }: any) => {
     return <Text>Loading...</Text>;
   }
 
-  const currentQuestion = fetchedQuestions[currentQuestionIndex];
+  const currentQuestion: {question: string, correct_answer: string, incorrect_answers: string[]} = fetchedQuestions[currentQuestionIndex];
   const currentAnswers = shuffleArray([...currentQuestion.incorrect_answers, currentQuestion.correct_answer]);
 
   const navigation = useNavigation();

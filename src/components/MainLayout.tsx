@@ -1,15 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
-import MainButton from './MainButton'; // Update the import path
-
-interface Props {
-  setSelectedCategory: React.Dispatch<React.SetStateAction<number | null>>;
-  setSelectedDifficulty: React.Dispatch<React.SetStateAction<string | null>>;
-  categoryOptions: { label: string; value: string }[];
-  difficultyOptions: { label: string; value: string }[];
-  onStartPressHandler: () => void;
-}
+import MainButton from './MainButton';
+import { MainLayoutProps } from './types';
 
 const MainLayout = ({
   setSelectedCategory,
@@ -17,7 +10,7 @@ const MainLayout = ({
   categoryOptions,
   difficultyOptions,
   onStartPressHandler,
-}: Props) => {
+}: MainLayoutProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.miniContainer}>
