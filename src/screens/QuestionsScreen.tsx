@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
 import { fetchTriviaQuestions } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
+import { QuestionsLayout } from '../components';
 
-let onlyOneShuffle = 0;
+let onlyOneShuffle: string[] = [];
 
-const QuestionScreen = ({ route }: any) => {
+const QuestionsScreen = ({ route }: any) => {
   const selectedCategory = route.params.selectedCategory;
   const selectedDifficulty = route.params.selectedDifficulty;
   const [fetchedQuestions, setFetchedQuestions] = useState([]);
@@ -42,15 +43,19 @@ const QuestionScreen = ({ route }: any) => {
     }, 1000);
   };
 
+  const onRestartPressHandler = () => {
+    setCurrentQuestionIndex(0);
+    setScore(0);
+  }
+
   const shuffleArray = (array: string[]) => {
-    if(onlyOneShuffle>0){
-      return array;
+    if(onlyOneShuffle !== array.sort()){
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      onlyOneShuffle = array.sort();
     }
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    onlyOneShuffle++;
     return array;
   };
 
@@ -67,61 +72,21 @@ const QuestionScreen = ({ route }: any) => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.scoreText}>Score: {score}/10</Text>
-      {currentQuestionIndex < 9 && (
-        <>
-          <Text style={styles.scoreText}>Question N: {currentQuestionIndex + 1}</Text>
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
-          {currentAnswers.map((answer, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.answerContainer,
-                selectedAnswer === answer && (answer === currentQuestion.correct_answer ? styles.correctAnswer : styles.incorrectAnswer), // Style for selected answer
-              ]}
-              onPress={() => handleAnswerSelect(answer)}
-              disabled={selectedAnswer !== null} // Disable selecting a new answer until next question
-            >
-              <Text>{answer}</Text>
-            </TouchableOpacity>
-          ))}
-        </>
-      )}
-      <Button title='Back To Home' onPress={onHomePressHandler}/>
-    </View>
+    <QuestionsLayout
+      score={score}
+      currentQuestionIndex={currentQuestionIndex}
+      currentQuestion={currentQuestion} 
+      currentAnswers={currentAnswers} 
+      selectedAnswer={selectedAnswer}
+      handleAnswerSelect={handleAnswerSelect}
+      onHomePressHandler={onHomePressHandler}
+      onRestartPressHandler={onRestartPressHandler}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  questionText: {
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  answerContainer: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  correctAnswer: {
-    backgroundColor: 'lightgreen', // Background color for correct answer
-  },
-  incorrectAnswer: {
-    backgroundColor: 'lightcoral', // Background color for incorrect answer
-  },
-  scoreText: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
+  
 });
 
-export default QuestionScreen;
+export default QuestionsScreen;
